@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Config\MessageStatus;
 use App\Entity\Message;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -19,9 +20,8 @@ class AppFixtures extends Fixture
             $message = new Message();
             $message->setUuid(Uuid::v6()->toRfc4122());
             $message->setText($faker->sentence);
-            $message->setStatus(random(['sent', 'read']));
-            $message->setCreatedAt(new \DateTime());
-            
+            $message->setStatus(random(MessageStatus::cases()));
+
             $manager->persist($message);
         }
 

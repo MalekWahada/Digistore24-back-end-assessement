@@ -2,6 +2,9 @@ openapi: 3.0.0
 info:
   title: Messages API
   version: 1.0.0
+servers:
+  - url: https://127.0.0.1:8000/api
+    description: Local development server
 paths:
   /messages:
     get:
@@ -30,7 +33,7 @@ paths:
                     items:
                       type: "object"
                       properties:
-                        uuid: 
+                        uuid:
                           type: "string"
                         text:
                           type: "string"
@@ -48,15 +51,21 @@ paths:
                   - text: "Thanks, I'm fine. How about you?"
                     status: "sent"
   /messages/send:
-    get:
+    post:
       summary: Send a Message
-      parameters:
-        - name: text
-          in: query
-          description: The text you want to send
-          required: true
-          schema:
-            type: "string"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: The name of the spot to request.
+                  example: "Text me later"
+              required:
+                - text
       responses:
         '204':
           description: Successfully sent
