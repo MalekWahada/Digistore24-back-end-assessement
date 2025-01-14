@@ -29,5 +29,5 @@ phpstan.neon
 ###< phpstan/phpstan ###
 
 ###> IDE files ###
-.idea
+/.idea/
 ###< IDE files ###
