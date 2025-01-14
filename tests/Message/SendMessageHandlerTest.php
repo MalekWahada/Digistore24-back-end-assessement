@@ -10,37 +10,23 @@ use App\Message\SendMessage;
 use App\Message\SendMessageHandler;
 use App\Repository\MessageRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Container\ContainerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Uid\Uuid;
 
 class SendMessageHandlerTest extends KernelTestCase
 {
-    public function test_send_message(): void
+    public function test_handle_send_message(): void
     {
-        $mockEntityManager = $this->createMock(EntityManagerInterface::class);
-        $handler = new SendMessageHandler($mockEntityManager);
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $this->assertInstanceOf(EntityManagerInterface::class, $entityManager);
 
-        $text = 'Test message content';
+        $messageRepository = $entityManager->getRepository(Message::class);
+        $this->assertInstanceOf(MessageRepository::class, $messageRepository);
+
+        $text = 'Hello, test me!';
         $sendMessage = new SendMessage($text);
 
-//        $mockEntityManager
-//            ->expects($this->any())
-//            ->method('persist')
-//            ->with($this->callback(function (Message $message) use ($sendMessage) {
-//                return $message->getText() === $sendMessage->text &&
-//                    $message->getStatus() === MessageStatus::SENT &&
-//                    Uuid::isValid($message->getUuid());
-//            }));
-//
-//        $mockEntityManager
-//            ->expects($this->any())
-//            ->method('flush');
-
+        $handler = new SendMessageHandler($entityManager);
         $handler($sendMessage);
-
-        /** @var MessageRepository|ContainerInterface $messageRepository */
-        $messageRepository = self::getContainer()->get(MessageRepository::class);
 
         $message = $messageRepository->findOneBy(
             ['text' => $text],
@@ -48,6 +34,7 @@ class SendMessageHandlerTest extends KernelTestCase
         );
 
         $this->assertInstanceOf(Message::class, $message);
+        $this->assertEquals(MessageStatus::SENT, $message->getStatus());
         $this->assertNotNull($message->getCreatedAt());
     }
 }

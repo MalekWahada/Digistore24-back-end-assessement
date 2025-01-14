@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Tests\Repository;
@@ -12,8 +13,9 @@ class MessageRepositoryTest extends KernelTestCase
     {
         self::bootKernel();
         
-        $messages = self::getContainer()->get(MessageRepository::class);
-        
-        $this->assertSame([], $messages->findAll());
+        $messageRepository = self::getContainer()->get(MessageRepository::class);
+
+        $this->assertInstanceOf(MessageRepository::class, $messageRepository);
+        $this->assertNotEmpty($messageRepository->findAll());
     }
 }

@@ -29,7 +29,7 @@ class MessageRepository extends ServiceEntityRepository
      */
     public function findByStatus(?MessageStatus $status): array
     {
-        if (!$status) {
+        if (is_null($status)) {
             return $this->findAll();
         }
 

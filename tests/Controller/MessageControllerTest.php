@@ -41,7 +41,7 @@ class MessageControllerTest extends WebTestCase
     public function test_that_it_sends_a_message(): void
     {
         $client = static::createClient();
-        $client->request(Request::METHOD_POST, 'api/messages/send', [
+        $client->jsonRequest(Request::METHOD_POST, 'api/messages/send', [
             'text' => 'Hello World',
         ]);
 
@@ -55,7 +55,7 @@ class MessageControllerTest extends WebTestCase
     public function test_that_it_sends_a_bad_message(): void
     {
         $client = static::createClient();
-        $client->request(Request::METHOD_POST, 'api/messages/send', [
+        $client->jsonRequest(Request::METHOD_POST, 'api/messages/send', [
             'text' => '',
         ]);
 

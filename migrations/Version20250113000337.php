@@ -11,7 +11,7 @@ final class Version20250113000337 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Create message table uto migration.';
+        return 'Create message table migration.';
     }
 
     public function up(Schema $schema): void

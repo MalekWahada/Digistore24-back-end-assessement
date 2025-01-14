@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controller;
@@ -6,6 +7,7 @@ namespace App\Controller;
 use App\Config\MessageStatus;
 use App\Entity\Message;
 use App\Message\SendMessage;
+use App\Model\MessageDto;
 use App\Repository\MessageRepository;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -13,10 +15,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('api/messages')]
+#[OA\Tag(
+    name: 'messages'
+)]
 class MessageController extends AbstractController
 {
     public function __construct(
@@ -25,10 +31,7 @@ class MessageController extends AbstractController
     ) {
     }
 
-    /**
-     * TODO: cover this method with tests, and refactor the code (including other files that need to be refactored)
-     */
-    #[Route('/', methods: [Request::METHOD_GET])]
+    #[Route('/', methods: [Request::METHOD_GET], format: 'json')]
     #[OA\Response(
         response: Response::HTTP_OK,
         description: 'Returns list of all messages or filtered by status.',
@@ -46,6 +49,7 @@ class MessageController extends AbstractController
         in: 'query',
         required: false,
         schema: new OA\Schema(
+            title: 'Message status',
             type: 'string',
             enum: MessageStatus::class
         )
@@ -61,7 +65,7 @@ class MessageController extends AbstractController
         );
     }
 
-    #[Route('/send', methods: [Request::METHOD_POST])]
+    #[Route('/send', methods: [Request::METHOD_POST], format: 'json')]
     #[OA\Response(
         response: Response::HTTP_NO_CONTENT,
         description: 'Message sent.',
@@ -72,15 +76,12 @@ class MessageController extends AbstractController
             groups: ['message:send']
         )
     )]
-    public function send(Request $request): JsonResponse
-    {
-        $text = $request->getPayload()->getString('text');
-
-        if ('' === $text) {
-            return $this->json(['error' => '`text` is required'], Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-
-        $this->bus->dispatch(new SendMessage($text));
+    public function send(#[MapRequestPayload(
+        acceptFormat: 'json',
+        serializationContext: ['message:send']
+    )] MessageDto $messageDto
+    ): JsonResponse {
+        $this->bus->dispatch(new SendMessage($messageDto->text));
 
         return $this->json('Successfully sent', Response::HTTP_NO_CONTENT);
     }
