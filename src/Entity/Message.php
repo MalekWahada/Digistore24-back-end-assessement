@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
+use App\Config\MessageStatus;
 use App\Repository\MessageRepository;
-use DateTime;
+use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
-/**
- * TODO: Review Message class
- */
+#[ORM\HasLifecycleCallbacks]
 class Message
 {
     #[ORM\Id]
@@ -19,16 +21,22 @@ class Message
     private ?int $id = null;
 
     #[ORM\Column(type: Types::GUID)]
+    #[Groups('message:read')]
     private ?string $uuid = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: Types::TEXT)]
+    #[Groups([
+        'message:read',
+        'message:send',
+    ])]
     private ?string $text = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $status = null;
+    #[ORM\Column(nullable: true, enumType: MessageStatus::class)]
+    #[Groups('message:read')]
+    private ?MessageStatus $status = null;
 
-    #[ORM\Column(type: 'datetime')]
-    private DateTime $createdAt;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private ?DateTimeImmutable $createdAt = null;
 
     public function getId(): ?int
     {
@@ -59,27 +67,26 @@ class Message
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): ?MessageStatus
     {
         return $this->status;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(MessageStatus $status): static
     {
         $this->status = $status;
 
         return $this;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTime $createdAt): static
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
     {
-        $this->createdAt = $createdAt;
-        
-        return $this;
+        $this->createdAt = new DateTimeImmutable();
     }
 }
