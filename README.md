@@ -25,3 +25,4 @@ If this does not work / you're faster with your own setup, feel free to use your
 
 1. `just install` to install all dependencies
 2. Run `just start` for a dev server (or `symfony serve` if you don't use `nix-shell`)
+3. open API endpoints docs can be tested here: https://localhost:8000/api/doc
